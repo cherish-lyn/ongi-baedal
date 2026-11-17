@@ -33,9 +33,12 @@
   }
   /* 반짝이는 눈송이: 글씨가 없는 가장자리에만 */
   .snow{position:absolute; inset:0; pointer-events:none}
-  .snow i{position:absolute; border-radius:50%; background:#fff; animation:twinkle 2.8s ease-in-out infinite}
-  .snow i.f{background:rgba(255,255,255,.5)}
-  @keyframes twinkle{0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.25; transform:scale(.7)}}
+  .snow i{position:absolute; border-radius:50%; background:#fff; box-shadow:0 0 6px 2px rgba(255,255,255,.75), 0 0 14px 5px rgba(190,220,255,.35);
+          animation:twinkle 4.2s ease-in-out infinite}
+  .snow i.f{background:rgba(255,255,255,.6); box-shadow:0 0 8px 3px rgba(255,255,255,.3)}
+  .snow i:nth-child(3n){animation-duration:5.6s}
+  .snow i:nth-child(3n+1){animation-duration:3.4s}
+  @keyframes twinkle{0%,100%{opacity:.95; transform:scale(1)} 45%{opacity:.12; transform:scale(.55)} 60%{opacity:.3; transform:scale(.7)}}
   header > :not(.snow){position:relative}
   .eyebrow{font-size:14.5px; font-weight:800; color:var(--yellow); letter-spacing:.01em}
   h1{margin:10px 0 0; font-weight:900; letter-spacing:-.03em; line-height:1.22}
@@ -124,6 +127,30 @@
   .familyday b{display:block; color:var(--yellow); font-size:22px; font-weight:900; letter-spacing:-.02em; line-height:1.3}
   .again{margin-top:14px; background:var(--blue); color:#fff; font-size:16px; padding:15px}
 
+  /* 답장 게시판 */
+  .brag-link{display:inline-block; margin-top:8px; background:var(--yellow); color:var(--navy); font-size:13.5px; font-weight:800; padding:7px 13px; border-radius:99px; text-decoration:none}
+  .board{margin-top:22px; padding:8px 0 0; text-align:center; scroll-margin-top:12px}
+  .board-tag{display:inline-block; background:var(--navy); color:#fff; font-size:13px; font-weight:800; padding:6px 16px; border-radius:99px}
+  .board h2{margin:12px 0 0; font-size:30px; font-weight:900; letter-spacing:-.03em; line-height:1.2}
+  .board h2 span{background:linear-gradient(transparent 62%, var(--yellow) 62% 92%, transparent 92%); padding:0 6px}
+  .board h2 em{font-style:normal; color:var(--blue)}
+  .board-lead{margin:12px 0 14px; font-size:14.5px; font-weight:700; color:var(--navy)}
+  .board-form{display:flex; gap:8px}
+  .board-form input{flex:1; min-width:0; font:inherit; font-size:16px; font-weight:600; color:var(--ink); background:#fff; border:2px solid var(--navy); border-radius:99px; padding:13px 18px; outline:none}
+  .board-form input:focus{box-shadow:0 0 0 3px var(--yellow)}
+  .board-form .btn{width:auto; flex:none; background:var(--navy); color:#fff; font-size:16px; padding:13px 20px}
+  .board-note{margin:8px 0 0; font-size:12.5px; font-weight:600; color:var(--sub)}
+  .notes{margin-top:16px; background:#fff; border:3px solid var(--navy); box-shadow:6px 6px 0 var(--navy); border-radius:24px; padding:18px 14px; min-height:150px;
+         display:grid; grid-template-columns:1fr 1fr; gap:12px; align-content:start; text-align:left}
+  .notes:empty::before{content:"첫 번째 답장을 붙여주세요"; grid-column:1/-1; align-self:center; text-align:center; padding:44px 0; color:#C9D8EE; font-size:22px; font-weight:900}
+  .note{position:relative; padding:16px 12px 14px; min-height:84px; font-size:15px; font-weight:700; line-height:1.4; color:#3A3320; overflow-wrap:anywhere;
+        box-shadow:1px 3px 6px rgba(12,42,92,.18); border-radius:2px 2px 14px 2px}
+  .note:nth-child(4n+1){background:#FFE98A; transform:rotate(-2deg)}
+  .note:nth-child(4n+2){background:#FFD1DC; transform:rotate(1.5deg)}
+  .note:nth-child(4n+3){background:#CFE6FF; transform:rotate(1deg)}
+  .note:nth-child(4n+4){background:#D6F2C4; transform:rotate(-1.5deg)}
+  .note.mine{outline:2px dashed var(--navy); outline-offset:-5px}
+
   footer{margin-top:34px; text-align:center; font-size:13px; font-weight:600; color:var(--sub)}
   footer img{display:block; width:210px; max-width:70%; height:auto; margin:0 auto 10px; background:#fff; border-radius:14px; padding:8px 14px}
   footer a{color:inherit; text-decoration:none}
@@ -193,11 +220,24 @@
       <li>문구판의 고른 칸에 스티커 붙이기
         <small><span class="sticker" style="background:var(--dot)"></span>평소에도 하는 말 &nbsp; <span class="sticker" style="background:var(--red)"></span>평소에 잘 못 하던 말</small></li>
       <li>뭐라고 답장 왔나요?
-        <small>받은 답장을 포스트잇에 한 줄만 옮겨 적어 붙여주세요. "ㅇㅇ", "갑자기 왜 그래"도 좋아요 😊</small></li>
+        <small>받은 답장을 포스트잇에 한 줄만 옮겨 적어 붙여주세요. "ㅇㅇ", "갑자기 왜 그래"도 좋아요 😊</small>
+        <a class="brag-link" href="#board">여기에도 답장 자랑하기 ↓</a></li>
       <li>핫팩 받아가기</li>
     </ol>
     <div class="familyday">매주 수요일은<b>가족사랑의 날</b><span id="fdText"></span></div>
     <button class="btn again" id="btnAgain">다른 가족에게도 전하기</button>
+  </section>
+
+  <section class="board" id="board" aria-labelledby="boardTitle">
+    <div class="board-tag">올해가 가기 전에, 온기배달</div>
+    <h2 id="boardTitle"><span>뭐라고 <em>답장</em> 왔나요?</span></h2>
+    <p class="board-lead">받은 답장을 한 줄만 옮겨 적어 붙여주세요.<br>"ㅇㅇ", "갑자기 왜 그래"도 좋아요 😊</p>
+    <div class="board-form">
+      <input id="replyText" type="text" maxlength="60" placeholder="예: 나도 사랑한다. 고맙다" aria-label="받은 답장 한 줄" enterkeyhint="send">
+      <button class="btn" id="btnReply" disabled>붙이기</button>
+    </div>
+    <p class="board-note">이름 없이 익명으로 붙어요. 이름·전화번호는 적지 말아 주세요.</p>
+    <div class="notes" id="notes"></div>
   </section>
 
   <footer>
@@ -235,7 +275,7 @@ const CONFIG = {
 
   // 문구판과 똑같이 맞춰 주세요. 문구를 바꾸면 그 문구의 카운트는 0부터 새로 셉니다.
   // 이 호칭을 고르면 문구가 반말로 들어갑니다.
-  CASUAL_HONORIFICS: ["우리 딸", "우리 아들"],
+  CASUAL_HONORIFICS: ["우리 딸", "우리 아들", "동생"],
   // 높임말 문구 → 반말 문구 (여기 없는 문구는 원래 반말이라 그대로 들어갑니다)
   CASUAL: {
     "올 한 해 곁에 있어줘서 고마워요.": "올 한 해 곁에 있어줘서 고마워.",
@@ -243,14 +283,14 @@ const CONFIG = {
     "매일 챙겨줘서 고마워요. 덕분에 잘 지냈어요.": "매일 챙겨줘서 고마워. 덕분에 잘 지냈어.",
     "올 한 해 같이여서 좋았어요. 고마워요.": "올 한 해 같이여서 좋았어. 고마워.",
     "항상 내 걱정부터 해줘서 고마워요.": "항상 내 걱정부터 해줘서 고마워.",
-    "당신이 있어서 든든했어요.": "네가 있어서 든든했어.",
+    "곁에 있어서 든든했어요.": "곁에 있어서 든든했어.",
     "바쁘다고 못 챙겨서 미안해요.": "바쁘다고 못 챙겨서 미안해.",
     "그때 못 참고 화내서 미안해요.": "그때 못 참고 화내서 미안해.",
     "요즘 말이 짧았죠. 미안해요.": "요즘 말이 짧았지. 미안해.",
     "고생하는 거 알면서 표현 못 해서 미안해요.": "고생하는 거 알면서 표현 못 해서 미안해.",
     "새삼스럽지만 사랑해요.": "새삼스럽지만 사랑해.",
     "보고 싶어요. 다음 주에 얼굴 봐요.": "보고 싶어. 다음 주에 얼굴 보자.",
-    "당신이 내 가족이라 다행이에요.": "네가 내 가족이라 다행이야.",
+    "내 가족이라 다행이에요.": "내 가족이라 다행이야.",
     "오늘따라 보고 싶네요.": "오늘따라 보고 싶네.",
     "올해 정말 고생 많았어요. 수고했어요.": "올해 정말 고생 많았어. 수고했어.",
     "연말연시 우리 가족 행복해요.": "연말연시 우리 가족 행복하자.",
@@ -259,7 +299,7 @@ const CONFIG = {
     "힘들면 언제든 말해요. 같이 할게요.": "힘들면 언제든 말해. 같이 할게.",
     "다음 주 수요일엔 일찍 갈게요. 같이 저녁 먹어요.": "다음 주 수요일엔 일찍 갈게. 같이 저녁 먹자.",
     "앞으로는 먼저 안부 물을게요.": "앞으로는 먼저 안부 물을게.",
-    "내년에도 당신 편에 있을게요.": "내년에도 네 편에 있을게.",
+    "내년에도 늘 편이 되어줄게요.": "내년에도 늘 편이 되어줄게.",
     "더 많이 웃으면서 지낼게요. 약속해요.": "더 많이 웃으면서 지낼게. 약속해.",
     "앞으로 자주 말할게요. 고맙다고 사랑한다고.": "앞으로 자주 말할게. 고맙다고 사랑한다고.",
   },
@@ -273,7 +313,7 @@ const CONFIG = {
       "올 한 해 같이여서 좋았어요. 고마워요.",
       "키워줘서 고마워.",
       "항상 내 걱정부터 해줘서 고마워요.",
-      "당신이 있어서 든든했어요.",
+      "곁에 있어서 든든했어요.",
     ]},
     { name: "미안함", phrases: [
       "바쁘다고 못 챙겨서 미안해요.",
@@ -286,7 +326,7 @@ const CONFIG = {
     { name: "사랑", phrases: [
       "새삼스럽지만 사랑해요.",
       "보고 싶어요. 다음 주에 얼굴 봐요.",
-      "당신이 내 가족이라 다행이에요.",
+      "내 가족이라 다행이에요.",
       "있는 그대로 사랑해.",
       "사랑해. 그냥 말하고 싶었어.",
       "오늘따라 보고 싶네요.",
@@ -302,7 +342,7 @@ const CONFIG = {
     { name: "약속", phrases: [
       "다음 주 수요일엔 일찍 갈게요. 같이 저녁 먹어요.",
       "앞으로는 먼저 안부 물을게요.",
-      "내년에도 당신 편에 있을게요.",
+      "내년에도 늘 편이 되어줄게요.",
       "더 많이 웃으면서 지낼게요. 약속해요.",
       "앞으로 자주 말할게요. 고맙다고 사랑한다고.",
     ]},
@@ -480,12 +520,52 @@ function log(channel) {
   try { fetch(CONFIG.ENDPOINT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body: payload }); } catch (e) {}
 }
 
+/* ---------- 답장 게시판 ---------- */
+let myReplies = [];
+try { myReplies = JSON.parse(localStorage.getItem("ongi_replies") || "[]"); } catch (e) {}
+let serverReplies = [];
+
+function renderNotes() {
+  const box = $("notes");
+  box.innerHTML = "";
+  // 내가 방금 붙인 답장은 서버에 올라오기 전에도 바로 보이게
+  const pending = myReplies.filter((t) => !serverReplies.includes(t));
+  [...pending.map((t) => [t, true]), ...serverReplies.map((t) => [t, false])].forEach(([t, mine]) => {
+    const d = document.createElement("div");
+    d.className = "note" + (mine ? " mine" : "");
+    d.textContent = t;
+    box.appendChild(d);
+  });
+}
+
+function postReply() {
+  const input = $("replyText");
+  const text = input.value.replace(/\s+/g, " ").trim().slice(0, 60);
+  if (!text) return;
+  if (/https?:|www\.|\.com|\.kr|\d{2,4}[-\s.]?\d{3,4}[-\s.]?\d{4}/i.test(text)) { toast("링크나 전화번호는 적을 수 없어요."); return; }
+  if (myReplies.length >= 3) { toast("답장은 한 사람당 3개까지 붙일 수 있어요."); return; }
+  if (CONFIG.ENDPOINT) {
+    const payload = JSON.stringify({ type: "reply", text, sid });
+    let sent = false;
+    try { sent = navigator.sendBeacon && navigator.sendBeacon(CONFIG.ENDPOINT, payload); } catch (e) {}
+    if (!sent) { try { fetch(CONFIG.ENDPOINT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body: payload }); } catch (e) {} }
+  }
+  myReplies.unshift(text);
+  try { localStorage.setItem("ongi_replies", JSON.stringify(myReplies)); } catch (e) {}
+  input.value = "";
+  $("btnReply").disabled = true;
+  renderNotes();
+  toast("답장을 붙였어요 📌");
+  setTimeout(loadCounts, 3000);
+}
+
 async function loadCounts() {
   if (!CONFIG.ENDPOINT) return;
   try {
     const r = await fetch(CONFIG.ENDPOINT + (CONFIG.ENDPOINT.includes("?") ? "&" : "?") + "t=" + Date.now());
     const j = await r.json();
     state.counts = j.counts || {};
+    if (Array.isArray(j.replies)) { serverReplies = j.replies.map(String); renderNotes(); }
     if (j.total > 0) { $("total").textContent = j.total; $("live").classList.add("show"); }
     renderPhrases();
   } catch (e) { /* 집계를 못 불러와도 전송은 그대로 동작 */ }
@@ -610,6 +690,10 @@ $("btnKakao").onclick = sendKakao;
 $("btnShare").onclick = sendShare;
 $("btnCopy").onclick = copyOnly;
 $("btnAgain").onclick = again;
+$("btnReply").onclick = postReply;
+$("replyText").addEventListener("input", () => ($("btnReply").disabled = !$("replyText").value.trim()));
+$("replyText").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.isComposing) postReply(); });
+renderNotes();
 // 문자 앱에 갔다가 돌아오면 숫자 새로고침
 document.addEventListener("visibilitychange", () => { if (!document.hidden) loadCounts(); });
 
