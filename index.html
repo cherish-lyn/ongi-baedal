@@ -81,8 +81,7 @@
 
   /* 편집 */
   .honor-label{font-size:13.5px; color:var(--sub); margin:0 0 8px; font-weight:600}
-  .honors{display:flex; gap:6px; overflow-x:auto; margin:0 -18px 12px; padding:0 18px 4px; scrollbar-width:none}
-  .honors::-webkit-scrollbar{display:none}
+  .honors{display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px}
   .honor{flex:none; appearance:none; font:inherit; font-size:14px; font-weight:700; border:0; background:var(--pale); color:var(--navy); padding:7px 13px; border-radius:999px; cursor:pointer}
   .honor[aria-pressed="true"]{background:var(--navy); color:#fff}
   .bubble{position:relative}
