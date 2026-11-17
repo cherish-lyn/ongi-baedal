@@ -227,7 +227,9 @@ const CONFIG = {
   HOST: "달서구가족센터 · 감삼 공동육아나눔터",
   SNS: "인스타그램 @dalseo_family",                                   // 예: "인스타그램 @센터계정"  (비워 두면 표시 안 함)
   FAMILY_DAY_LINE: "가족과 저녁을 함께하는 날이에요. 오늘 보낸 따뜻한 한마디, 가족의 온기로 이어가요.",
-  INVITE_LINE: "P.S. 매주 수요일은 가족사랑의 날이래요. 다음 주 수요일(25일) 저녁, 같이 밥 먹어요!",
+  // 수요일 저녁 초대 한 줄. 위 메시지가 높임말이면 높임말로, 반말이면 반말로 붙습니다.
+  INVITE_POLITE: "매주 수요일은 가족사랑의 날이래요 🧡 다음 주 수요일에 저녁 같이 먹어요!",
+  INVITE_CASUAL: "매주 수요일은 가족사랑의 날이래 🧡 다음 주 수요일에 저녁 같이 먹자!",
 
   HONORIFICS: ["엄마", "아빠", "여보", "자기야", "할머니", "할아버지", "우리 딸", "우리 아들", "언니", "누나", "오빠", "형", "동생"],
 
@@ -254,7 +256,7 @@ const CONFIG = {
     ]},
     { name: "사랑", phrases: [
       "새삼스럽지만, 사랑해요.",
-      "보고 싶어요. 이번 주에 얼굴 봐요.",
+      "보고 싶어요. 다음 주에 얼굴 봐요.",
       "당신이 내 가족이라 다행이에요.",
       "우리 딸(아들), 있는 그대로 사랑해.",
       "엄마(아빠), 사랑해. 그냥 말하고 싶었어.",
@@ -269,7 +271,7 @@ const CONFIG = {
       "힘들면 언제든 말해요. 같이 할게요.",
     ]},
     { name: "약속", phrases: [
-      "이번 주 수요일엔 일찍 갈게요. 같이 저녁 먹어요.",
+      "다음 주 수요일엔 일찍 갈게요. 같이 저녁 먹어요.",
       "앞으로는 먼저 안부 물을게요.",
       "내년에도 당신 편에 있을게요.",
       "더 많이 웃으면서 지낼게요. 약속해요.",
@@ -376,10 +378,10 @@ function selectTheme(t) {
 function selectPhrase(text) {
   state.phrase = text;
   const { core, opts } = splitLead(text);
-  state.core = core;
+  state.core = core.replace(/, /g, " "); // 보낼 때는 쉼표를 빼서 평소 문자 말투로
   if (opts) { if (!opts.includes(state.honor)) { state.honor = opts[0]; state.autoHonor = true; } }
   else if (state.autoHonor) { state.honor = null; state.autoHonor = false; } // 자동으로 붙은 부르는 말은 다른 문구에서 뺌
-  setBody(core);
+  setBody(state.core);
   renderHonors();
   renderPhrases();
 }
@@ -388,26 +390,37 @@ function selectPhrase(text) {
 function toggleHonor(h) {
   const ta = $("msg");
   let v = ta.value;
-  if (state.honor && v.startsWith(state.honor + ", ")) v = v.slice(state.honor.length + 2);
+  if (state.honor && v.startsWith(state.honor + " ")) v = v.slice(state.honor.length + 1);
   state.honor = state.honor === h ? null : h;
   state.autoHonor = false;
-  ta.value = state.honor ? state.honor + ", " + v : v;
+  ta.value = state.honor ? state.honor + " " + v : v;
   renderHonors();
   updateButtons();
 }
 
 function setBody(text) {
-  $("msg").value = state.honor ? state.honor + ", " + text : text;
+  $("msg").value = state.honor ? state.honor + " " + text : text;
   updateButtons();
 }
 
 function body() {
   let v = $("msg").value.trim();
-  if (v && $("invite").checked) v += "\n" + CONFIG.INVITE_LINE;
+  if (v && $("invite").checked) v += "\n" + inviteLine(v);
   return v;
 }
 
+// 높임말인지 반말인지: 문장 끝이 '요/니다/세요/죠'로 끝나면 높임말
+function isPolite(text) {
+  const parts = text.split(/[.!?~\n]+/).map((x) => x.replace(/[^가-힣]+$/, "")).filter(Boolean);
+  if (!parts.length) return true;
+  return parts.some((p) => /(요|니다|니까|세요|죠)$/.test(p));
+}
+function inviteLine(text) {
+  return isPolite(text) ? CONFIG.INVITE_POLITE : CONFIG.INVITE_CASUAL;
+}
+
 function updateButtons() {
+  $("inviteText").textContent = "“" + inviteLine($("msg").value.trim()) + "”";
   const empty = !$("msg").value.trim();
   ["btnSms", "btnKakao", "btnShare", "btnCopy"].forEach((id) => ($(id).disabled = empty));
 }
@@ -415,7 +428,7 @@ function updateButtons() {
 function isEdited() {
   if (!state.phrase) return true;
   let v = $("msg").value.trim();
-  if (state.honor && v.startsWith(state.honor + ", ")) v = v.slice(state.honor.length + 2);
+  if (state.honor && v.startsWith(state.honor + " ")) v = v.slice(state.honor.length + 1);
   return v !== state.core;
 }
 
@@ -557,7 +570,6 @@ function again() {
 }
 
 /* ---------- 시작 ---------- */
-$("inviteText").textContent = "“" + CONFIG.INVITE_LINE + "”";
 $("fdText").textContent = CONFIG.FAMILY_DAY_LINE;
 $("msg").addEventListener("input", updateButtons);
 $("btnSms").onclick = sendSms;
