@@ -10,6 +10,8 @@
 <meta property="og:image" content="https://cherish-lyn.github.io/ongi-baedal/poster.jpg">
 <meta name="theme-color" content="#2060C0">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💌%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
@@ -145,6 +147,9 @@
   .notes{margin-top:16px; background:#fff; border:3px solid var(--navy); box-shadow:6px 6px 0 var(--navy); border-radius:24px; padding:18px 14px; min-height:150px;
          display:grid; grid-template-columns:1fr 1fr; gap:12px; align-content:start; text-align:left}
   .notes:empty::before{content:"첫 번째 답장을 붙여주세요"; grid-column:1/-1; align-self:center; text-align:center; padding:44px 0; color:#C9D8EE; font-size:22px; font-weight:900}
+  .notes.loading::before{content:""; grid-column:1/-1; height:84px; border-radius:2px 2px 14px 2px; padding:0;
+        background:linear-gradient(90deg, #FFF3BF 0 47%, transparent 47% 53%, #FFE3EA 53% 100%); animation:blink 1.1s ease-in-out infinite}
+  @keyframes blink{50%{opacity:.45}}
   .note{position:relative; padding:16px 12px 14px; min-height:84px; font-size:15px; font-weight:700; line-height:1.4; color:#3A3320; overflow-wrap:anywhere;
         box-shadow:1px 3px 6px rgba(12,42,92,.18); border-radius:2px 2px 14px 2px}
   .note:nth-child(4n+1){background:#FFE98A; transform:rotate(-2deg)}
@@ -238,7 +243,7 @@
       <input id="replyText" type="text" maxlength="60" placeholder="예: 나도 사랑한다. 고맙다" aria-label="받은 답장 한 줄" enterkeyhint="send">
       <button class="btn" id="btnReply" disabled>붙이기</button>
     </div>
-    <p class="board-note">이름 없이 익명으로 붙어요. 이름·전화번호는 적지 말아 주세요.</p>
+    <p class="board-note">이름 없이 익명으로 붙어요. 전화번호나 링크가 들어가면 등록되지 않습니다.<br>가족의 이름은 빼고 적어 주세요.</p>
     <div class="notes" id="notes"></div>
   </section>
 
@@ -545,12 +550,19 @@ function log(channel) {
 let myReplies = [];
 try { myReplies = JSON.parse(localStorage.getItem("ongi_replies") || "[]"); } catch (e) {}
 let serverReplies = [];
+let repliesLoaded = false;
+// 지난번에 본 결과를 먼저 바로 보여 주고, 새 결과가 오면 바꿔 끼움
+try {
+  const c = JSON.parse(localStorage.getItem("ongi_cache") || "null");
+  if (c) { state.counts = c.counts || {}; serverReplies = (c.replies || []).map(String); repliesLoaded = true; }
+} catch (e) {}
 
 function renderNotes() {
   const box = $("notes");
   box.innerHTML = "";
   // 내가 방금 붙인 답장은 서버에 올라오기 전에도 바로 보이게
   const pending = myReplies.filter((t) => !serverReplies.includes(t));
+  box.classList.toggle("loading", !repliesLoaded && !pending.length && !!CONFIG.ENDPOINT);
   [...pending.map((t) => [t, true]), ...serverReplies.map((t) => [t, false])].forEach(([t, mine]) => {
     const d = document.createElement("div");
     d.className = "note" + (mine ? " mine" : "");
@@ -586,10 +598,13 @@ async function loadCounts() {
     const r = await fetch(CONFIG.ENDPOINT + (CONFIG.ENDPOINT.includes("?") ? "&" : "?") + "t=" + Date.now());
     const j = await r.json();
     state.counts = j.counts || {};
-    if (Array.isArray(j.replies)) { serverReplies = j.replies.map(String); renderNotes(); }
+    repliesLoaded = true;
+    if (Array.isArray(j.replies)) serverReplies = j.replies.map(String);
+    renderNotes();
+    try { localStorage.setItem("ongi_cache", JSON.stringify({ counts: state.counts, replies: serverReplies })); } catch (e) {}
     if (j.total > 0) { $("total").textContent = j.total; $("live").classList.add("show"); }
     renderPhrases();
-  } catch (e) { /* 집계를 못 불러와도 전송은 그대로 동작 */ }
+  } catch (e) { repliesLoaded = true; renderNotes(); /* 집계를 못 불러와도 전송은 그대로 동작 */ }
 }
 
 /* ---------- 보내기 ---------- */
