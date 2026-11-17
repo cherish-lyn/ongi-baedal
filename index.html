@@ -549,6 +549,9 @@ function log(channel) {
 /* ---------- 답장 게시판 ---------- */
 let myReplies = [];
 try { myReplies = JSON.parse(localStorage.getItem("ongi_replies") || "[]"); } catch (e) {}
+let myPending = []; // 방금 붙여서 아직 서버 목록에 안 올라온 답장 {t, ts}
+try { myPending = JSON.parse(localStorage.getItem("ongi_pending") || "[]"); } catch (e) {}
+const PENDING_MS = 45000; // 이 시간이 지나도 서버 목록에 없으면(숨김·거절) 내 화면에서도 내림
 let serverReplies = [];
 let repliesLoaded = false;
 // 지난번에 본 결과를 먼저 바로 보여 주고, 새 결과가 오면 바꿔 끼움
@@ -561,7 +564,9 @@ function renderNotes() {
   const box = $("notes");
   box.innerHTML = "";
   // 내가 방금 붙인 답장은 서버에 올라오기 전에도 바로 보이게
-  const pending = myReplies.filter((t) => !serverReplies.includes(t));
+  myPending = myPending.filter((p) => Date.now() - p.ts < PENDING_MS && !serverReplies.includes(p.t));
+  try { localStorage.setItem("ongi_pending", JSON.stringify(myPending)); } catch (e) {}
+  const pending = myPending.map((p) => p.t);
   box.classList.toggle("loading", !repliesLoaded && !pending.length && !!CONFIG.ENDPOINT);
   [...pending.map((t) => [t, true]), ...serverReplies.map((t) => [t, false])].forEach(([t, mine]) => {
     const d = document.createElement("div");
@@ -584,12 +589,15 @@ function postReply() {
     if (!sent) { try { fetch(CONFIG.ENDPOINT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body: payload }); } catch (e) {} }
   }
   myReplies.unshift(text);
+  myPending.unshift({ t: text, ts: Date.now() });
   try { localStorage.setItem("ongi_replies", JSON.stringify(myReplies)); } catch (e) {}
   input.value = "";
   $("btnReply").disabled = true;
   renderNotes();
   toast("답장을 붙였어요 📌");
   setTimeout(loadCounts, 3000);
+  setTimeout(loadCounts, 20000);
+  setTimeout(renderNotes, PENDING_MS + 500);
 }
 
 async function loadCounts() {
