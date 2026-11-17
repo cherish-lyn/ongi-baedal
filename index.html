@@ -29,14 +29,14 @@
   /* 헤더: 포스터와 같은 파란 밤하늘 */
   header{
     position:relative; overflow:hidden; text-align:center; color:#fff; background-color:var(--blue);
-    background-image:
-      radial-gradient(circle, #fff 0 3px, transparent 3.5px), radial-gradient(circle, #fff 0 2px, transparent 2.5px),
-      radial-gradient(circle, rgba(255,255,255,.45) 0 4px, transparent 4.5px), radial-gradient(circle, #fff 0 2.5px, transparent 3px),
-      radial-gradient(circle, rgba(255,255,255,.4) 0 3px, transparent 3.5px), radial-gradient(circle, #fff 0 2px, transparent 2.5px);
-    background-size:100% 100%; background-repeat:no-repeat;
-    background-position:-42% -38%, 38% -30%, 30% -42%, -30% 34%, 44% 20%, 12% 44%;
     padding:30px 20px 54px; border-radius:0 0 50% 50% / 0 0 34px 34px;
   }
+  /* 반짝이는 눈송이: 글씨가 없는 가장자리에만 */
+  .snow{position:absolute; inset:0; pointer-events:none}
+  .snow i{position:absolute; border-radius:50%; background:#fff; animation:twinkle 2.8s ease-in-out infinite}
+  .snow i.f{background:rgba(255,255,255,.5)}
+  @keyframes twinkle{0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.25; transform:scale(.7)}}
+  header > :not(.snow){position:relative}
   .eyebrow{font-size:14.5px; font-weight:800; color:var(--yellow); letter-spacing:.01em}
   h1{margin:10px 0 0; font-weight:900; letter-spacing:-.03em; line-height:1.22}
   h1 span{display:block; font-size:22px; font-weight:800}
@@ -140,6 +140,7 @@
 </head>
 <body>
 <header>
+  <div class="snow" aria-hidden="true"><i style="left:6%;top:12px;width:6px;height:6px;animation-delay:0s"></i><i style="left:88%;top:18px;width:5px;height:5px;animation-delay:0.9s"></i><i class="f" style="left:9%;top:46px;width:8px;height:8px;animation-delay:1.6s"></i><i style="left:93%;top:68px;width:4px;height:4px;animation-delay:0.4s"></i><i style="left:13%;top:76px;width:4px;height:4px;animation-delay:2.1s"></i><i class="f" style="left:3.5%;top:112px;width:4px;height:4px;animation-delay:1.2s"></i><i style="left:96%;top:118px;width:5px;height:5px;animation-delay:1.9s"></i><i class="f" style="left:21%;top:144px;width:6px;height:6px;animation-delay:0.2s"></i><i style="left:80%;top:148px;width:5px;height:5px;animation-delay:1.4s"></i><i style="left:10%;top:212px;width:6px;height:6px;animation-delay:0.7s"></i><i style="left:89%;top:224px;width:4px;height:4px;animation-delay:2.4s"></i><i class="f" style="left:18%;top:238px;width:4px;height:4px;animation-delay:1.1s"></i><i class="f" style="left:83%;top:200px;width:7px;height:7px;animation-delay:1.8s"></i></div>
   <div class="eyebrow">가족사랑의 날 캠페인 · 온기배달</div>
   <h1><span>올해가 가기 전에</span><em>가족에게 못 했던 한마디</em></h1>
   <div class="bar"></div>
@@ -228,8 +229,8 @@ const CONFIG = {
   SNS: "인스타그램 @dalseo_family",                                   // 예: "인스타그램 @센터계정"  (비워 두면 표시 안 함)
   FAMILY_DAY_LINE: "가족과 저녁을 함께하는 날이에요. 오늘 보낸 따뜻한 한마디, 가족의 온기로 이어가요.",
   // 수요일 저녁 초대 한 줄. 위 메시지가 높임말이면 높임말로, 반말이면 반말로 붙습니다.
-  INVITE_POLITE: "매주 수요일은 가족사랑의 날이래요 🧡 다음 주 수요일에 저녁 같이 먹어요!",
-  INVITE_CASUAL: "매주 수요일은 가족사랑의 날이래 🧡 다음 주 수요일에 저녁 같이 먹자!",
+  INVITE_POLITE: "매주 수요일은 가족사랑의 날이래요! 다음 주 수요일에 저녁 같이 먹어요 💕",
+  INVITE_CASUAL: "매주 수요일은 가족사랑의 날이래! 다음 주 수요일에 저녁 같이 먹자 💕",
 
   HONORIFICS: ["엄마", "아빠", "여보", "자기야", "할머니", "할아버지", "우리 딸", "우리 아들", "언니", "누나", "오빠", "형", "동생"],
 
