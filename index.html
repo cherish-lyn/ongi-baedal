@@ -66,8 +66,10 @@
         padding:10px 16px; border-radius:999px; cursor:pointer; transition:transform .08s, background .15s, color .15s}
   .chip:active{transform:scale(.97)}
   .chip[aria-pressed="true"]{background:var(--blue); color:#fff}
-  .theme-title{margin:18px 0 0; padding-bottom:8px; font-size:22px; font-weight:900; letter-spacing:-.02em;
+  .theme-title{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:18px 0 0; padding-bottom:8px; font-size:22px; font-weight:900; letter-spacing:-.02em;
                border-bottom:3px solid var(--navy); border-image:linear-gradient(90deg, var(--orange) 0 22%, var(--navy) 22% 100%) 1}
+
+  .theme-cnt{font-size:13.5px; font-weight:700; letter-spacing:0; color:var(--blue); white-space:nowrap}
 
   /* 문구 */
   .phrases{display:grid; gap:8px; margin-top:12px}
@@ -396,7 +398,17 @@ function renderThemes() {
 function renderPhrases() {
   const box = $("phrases");
   box.innerHTML = "";
-  $("themeTitle").textContent = state.theme.name;
+  const tt = $("themeTitle");
+  tt.textContent = state.theme.name;
+  // 주제별로 몇 명이 전했는지 (주제 이름 옆에 표시)
+  const isCustom = state.theme === CUSTOM;
+  const n = isCustom ? (state.counts["(직접 작성)"] || 0) : state.theme.phrases.reduce((a, p) => a + (state.counts[p] || 0), 0);
+  if (n > 0) {
+    const c = document.createElement("span");
+    c.className = "theme-cnt";
+    c.textContent = isCustom ? `💌 ${n}명이 직접 쓴 한마디를 전했어요` : `💌 ${n}명이 ${state.theme.name}을 전했어요`;
+    tt.appendChild(c);
+  }
   if (state.theme === CUSTOM) {
     const p = document.createElement("p");
     p.className = "custom-note";
@@ -411,11 +423,6 @@ function renderPhrases() {
     b.setAttribute("role", "radio");
     b.setAttribute("aria-checked", String(text === state.phrase));
     b.appendChild(document.createTextNode(text));
-    const c = document.createElement("span");
-    c.className = "cnt";
-    const n = state.counts[text] || 0;
-    c.textContent = n > 0 ? `💌 ${n}명이 이 말을 전했어요` : "";
-    b.appendChild(c);
     b.onclick = () => selectPhrase(text);
     box.appendChild(b);
   });
