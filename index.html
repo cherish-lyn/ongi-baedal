@@ -94,7 +94,7 @@
   textarea:focus{box-shadow:0 0 0 3px var(--yellow)}
   .toggle{display:flex; align-items:flex-start; gap:10px; margin-top:14px; font-size:14.5px; font-weight:700; cursor:pointer}
   .toggle input{width:20px; height:20px; margin:1px 0 0; accent-color:var(--blue); flex:none}
-  .toggle small{display:block; color:var(--sub); font-size:13px; font-weight:500}
+  .toggle small{display:block; white-space:pre-line; color:var(--sub); font-size:13px; font-weight:500}
 
   /* 보내기 */
   .send{display:grid; gap:10px}
@@ -268,8 +268,8 @@ const CONFIG = {
   SNS: "인스타그램 @dalseo_family",                                   // 예: "인스타그램 @센터계정"  (비워 두면 표시 안 함)
   FAMILY_DAY_LINE: "가족과 저녁을 함께하는 날이에요. 오늘 보낸 따뜻한 한마디, 가족의 온기로 이어가요.",
   // 수요일 저녁 초대 한 줄. 위 메시지가 높임말이면 높임말로, 반말이면 반말로 붙습니다.
-  INVITE_POLITE: "매주 수요일은 가족사랑의 날이래요! 다음 주 수요일에 저녁 같이 먹어요 💕",
-  INVITE_CASUAL: "매주 수요일은 가족사랑의 날이래! 다음 주 수요일에 저녁 같이 먹자 💕",
+  INVITE_POLITE: "매주 수요일은 가족사랑의 날이래요!\n다음 주 수요일에 저녁 같이 먹어요 💕",
+  INVITE_CASUAL: "매주 수요일은 가족사랑의 날이래!\n다음 주 수요일에 저녁 같이 먹자 💕",
 
   HONORIFICS: ["엄마", "아빠", "여보", "자기야", "할머니", "할아버지", "우리 딸", "우리 아들", "언니", "누나", "오빠", "형", "동생"],
 
@@ -494,7 +494,7 @@ function setBody(text) {
 
 function body() {
   let v = $("msg").value.trim();
-  if (v && $("invite").checked) v += "\n" + inviteLine(v);
+  if (v && $("invite").checked) v += "\n\n" + inviteLine(v); // 고른 문구와 한 줄 띄움
   return v;
 }
 
