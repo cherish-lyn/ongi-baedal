@@ -87,6 +87,7 @@
   .btn:disabled{opacity:.4; cursor:not-allowed; transform:none}
   .btn-sms{background:var(--accent); color:var(--accent-ink)}
   .btn-kakao{background:var(--kakao); color:var(--kakao-ink)}
+  .btn-share{background:var(--card); color:var(--ink); border:1.5px solid var(--line)}
   .btn-copy{background:transparent; color:var(--sub); font-size:15px; font-weight:700; padding:10px; text-decoration:underline; text-underline-offset:3px}
   .privacy{margin:14px 0 0; font-size:12.5px; color:var(--sub); text-align:center}
 
@@ -152,7 +153,8 @@
         <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 011 1v10a1 1 0 01-1 1H9l-4.5 3.5V17H4a1 1 0 01-1-1V6a1 1 0 011-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
         문자로 보내기
       </button>
-      <button class="btn btn-kakao" id="btnKakao" disabled>카카오톡으로 보내기</button>
+      <button class="btn btn-kakao" id="btnKakao" disabled>카카오톡으로 바로 보내기</button>
+      <button class="btn btn-share" id="btnShare" disabled>다른 앱으로 보내기</button>
       <button class="btn btn-copy" id="btnCopy" disabled>문구만 복사하기</button>
     </div>
     <p class="privacy">보내는 내용과 받는 사람은 저장되지 않아요.<br>어떤 문구가 골라졌는지만 익명으로 집계해요.</p>
@@ -184,6 +186,10 @@ const CONFIG = {
   // 구글 Apps Script를 배포하고 받은 '웹 앱 URL'을 따옴표 안에 붙여넣으세요.
   // 비워 두면 집계 없이 문구 선택·전송만 동작합니다.
   ENDPOINT: "https://script.google.com/macros/s/AKfycbwNB_kPADq7x7hxDcwlY08m7FJ7fPHNTOepAvqhVOnuLM7AURntdt2OUYpg7U7P89LY/exec",
+
+  // 카카오 디벨로퍼스에서 받은 JavaScript 키. 넣으면 '카카오톡으로 바로 보내기'가 카카오톡을 직접 엽니다.
+  KAKAO_JS_KEY: "",
+  KAKAO_BUTTON_TITLE: "온기배달 보기",
 
   HOST: "달서구가족센터 · 감삼 공동육아나눔터",
   SNS: "",                                   // 예: "인스타그램 @센터계정"  (비워 두면 표시 안 함)
@@ -352,7 +358,7 @@ function body() {
 
 function updateButtons() {
   const empty = !$("msg").value.trim();
-  ["btnSms", "btnKakao", "btnCopy"].forEach((id) => ($(id).disabled = empty));
+  ["btnSms", "btnKakao", "btnShare", "btnCopy"].forEach((id) => ($(id).disabled = empty));
 }
 
 function isEdited() {
@@ -398,13 +404,48 @@ function sendSms() {
   location.href = isIOS ? `sms:&body=${enc}` : `sms:?body=${enc}`;
 }
 
+// 카카오 SDK (키가 있을 때만 불러옴)
+let kakaoReady = false;
+function loadKakao() {
+  if (!CONFIG.KAKAO_JS_KEY) return;
+  const sc = document.createElement("script");
+  sc.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
+  sc.onload = () => {
+    try { if (!Kakao.isInitialized()) Kakao.init(CONFIG.KAKAO_JS_KEY); kakaoReady = true; } catch (e) {}
+  };
+  document.head.appendChild(sc);
+}
+
+// 카카오톡을 바로 열어 친구 선택 화면으로 (카카오 공식 공유)
 async function sendKakao() {
+  const text = body();
+  if (!text) return;
+  if (kakaoReady) {
+    try {
+      const url = location.origin + location.pathname;
+      Kakao.Share.sendDefault({
+        objectType: "text",
+        text: text.slice(0, 200),
+        link: { mobileWebUrl: url, webUrl: url },
+        buttonTitle: CONFIG.KAKAO_BUTTON_TITLE,
+      });
+      log("kakao");
+      showDone();
+      return;
+    } catch (e) {}
+  }
+  return sendShare("kakao");
+}
+
+// 휴대폰 공유창으로 (카카오톡·문자·다른 메신저 중 선택, 일반 말풍선으로 전송)
+async function sendShare(channel) {
+  const ch = typeof channel === "string" ? channel : "share";
   const text = body();
   if (!text) return;
   if (navigator.share) {
     try {
       await navigator.share({ text });
-      log("kakao");
+      log(ch);
       showDone();
       return;
     } catch (e) {
@@ -412,10 +453,10 @@ async function sendKakao() {
     }
   }
   // 공유창을 못 여는 브라우저(카카오톡 안의 브라우저, PC 등): 복사 후 안내
-  log("kakao");
+  log(ch);
   const ok = await copy(text);
   showDone();
-  toast(ok ? "문구를 복사했어요! 카카오톡 채팅방에 붙여넣기 해 주세요." : "복사가 안 돼요. 위 문구를 길게 눌러 복사해 주세요.", 4000);
+  toast(ok ? "문구를 복사했어요! 채팅방에 붙여넣기 해 주세요." : "복사가 안 돼요. 위 문구를 길게 눌러 복사해 주세요.", 4000);
 }
 
 async function copyOnly() {
@@ -470,6 +511,7 @@ $("fdText").textContent = CONFIG.FAMILY_DAY_LINE;
 $("msg").addEventListener("input", updateButtons);
 $("btnSms").onclick = sendSms;
 $("btnKakao").onclick = sendKakao;
+$("btnShare").onclick = sendShare;
 $("btnCopy").onclick = copyOnly;
 $("btnAgain").onclick = again;
 // 문자 앱에 갔다가 돌아오면 숫자 새로고침
@@ -477,6 +519,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) load
 
 renderThemes(); renderPhrases(); renderHonors(); renderFooter(); updateButtons();
 loadCounts();
+loadKakao();
 </script>
 </body>
 </html>
