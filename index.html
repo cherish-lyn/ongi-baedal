@@ -346,7 +346,7 @@ function setBody(text) {
 
 function body() {
   let v = $("msg").value.trim();
-  if (v && $("invite").checked) v += "\n\n" + CONFIG.INVITE_LINE;
+  if (v && $("invite").checked) v += "\n" + CONFIG.INVITE_LINE;
   return v;
 }
 
