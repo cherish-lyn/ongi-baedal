@@ -234,6 +234,36 @@ const CONFIG = {
   HONORIFICS: ["엄마", "아빠", "여보", "자기야", "할머니", "할아버지", "우리 딸", "우리 아들", "언니", "누나", "오빠", "형", "동생"],
 
   // 문구판과 똑같이 맞춰 주세요. 문구를 바꾸면 그 문구의 카운트는 0부터 새로 셉니다.
+  // 이 호칭을 고르면 문구가 반말로 들어갑니다.
+  CASUAL_HONORIFICS: ["우리 딸", "우리 아들"],
+  // 높임말 문구 → 반말 문구 (여기 없는 문구는 원래 반말이라 그대로 들어갑니다)
+  CASUAL: {
+    "올 한 해 곁에 있어줘서 고마워요.": "올 한 해 곁에 있어줘서 고마워.",
+    "말은 안 했지만 다 알고 있어요. 고마워요.": "말은 안 했지만 다 알고 있어. 고마워.",
+    "매일 챙겨줘서 고마워요. 덕분에 잘 지냈어요.": "매일 챙겨줘서 고마워. 덕분에 잘 지냈어.",
+    "올 한 해 같이여서 좋았어요. 고마워요.": "올 한 해 같이여서 좋았어. 고마워.",
+    "항상 내 걱정부터 해줘서 고마워요.": "항상 내 걱정부터 해줘서 고마워.",
+    "당신이 있어서 든든했어요.": "네가 있어서 든든했어.",
+    "바쁘다고 못 챙겨서 미안해요.": "바쁘다고 못 챙겨서 미안해.",
+    "그때 못 참고 화내서 미안해요.": "그때 못 참고 화내서 미안해.",
+    "요즘 말이 짧았죠. 미안해요.": "요즘 말이 짧았지. 미안해.",
+    "고생하는 거 알면서 표현 못 해서 미안해요.": "고생하는 거 알면서 표현 못 해서 미안해.",
+    "새삼스럽지만 사랑해요.": "새삼스럽지만 사랑해.",
+    "보고 싶어요. 다음 주에 얼굴 봐요.": "보고 싶어. 다음 주에 얼굴 보자.",
+    "당신이 내 가족이라 다행이에요.": "네가 내 가족이라 다행이야.",
+    "오늘따라 보고 싶네요.": "오늘따라 보고 싶네.",
+    "올해 정말 고생 많았어요. 수고했어요.": "올해 정말 고생 많았어. 수고했어.",
+    "연말연시 우리 가족 행복해요.": "연말연시 우리 가족 행복하자.",
+    "요즘 힘들죠. 응원할게요.": "요즘 힘들지. 응원할게.",
+    "잘하고 있어요. 조금만 더 힘내요.": "잘하고 있어. 조금만 더 힘내.",
+    "힘들면 언제든 말해요. 같이 할게요.": "힘들면 언제든 말해. 같이 할게.",
+    "다음 주 수요일엔 일찍 갈게요. 같이 저녁 먹어요.": "다음 주 수요일엔 일찍 갈게. 같이 저녁 먹자.",
+    "앞으로는 먼저 안부 물을게요.": "앞으로는 먼저 안부 물을게.",
+    "내년에도 당신 편에 있을게요.": "내년에도 네 편에 있을게.",
+    "더 많이 웃으면서 지낼게요. 약속해요.": "더 많이 웃으면서 지낼게. 약속해.",
+    "앞으로 자주 말할게요. 고맙다고 사랑한다고.": "앞으로 자주 말할게. 고맙다고 사랑한다고.",
+  },
+
   // 문구판과 똑같은 문구입니다. 문구를 바꾸면 그 문구의 카운트는 0부터 새로 셉니다.
   THEMES: [
     { name: "고마움", phrases: [
@@ -374,14 +404,17 @@ function selectTheme(t) {
   renderPhrases();
 }
 
+// 고른 문구를 지금 호칭에 맞는 말투로 (우리 딸·우리 아들이면 반말)
+function coreFor(phrase) {
+  const { core } = splitLead(phrase);
+  const base = core.replace(/, /g, " ");
+  return (CONFIG.CASUAL_HONORIFICS.includes(state.honor) && CONFIG.CASUAL[base]) || base;
+}
+
 function selectPhrase(text) {
   state.phrase = text;
-  const { core, opts } = splitLead(text);
-  state.core = core.replace(/, /g, " "); // 보낼 때는 쉼표를 빼서 평소 문자 말투로
-  if (opts) { if (!opts.includes(state.honor)) { state.honor = opts[0]; state.autoHonor = true; } }
-  else if (state.autoHonor) { state.honor = null; state.autoHonor = false; } // 자동으로 붙은 부르는 말은 다른 문구에서 뺌
+  state.core = coreFor(text);
   setBody(state.core);
-  renderHonors();
   renderPhrases();
 }
 
@@ -390,8 +423,9 @@ function toggleHonor(h) {
   const ta = $("msg");
   let v = ta.value;
   if (state.honor && v.startsWith(state.honor + " ")) v = v.slice(state.honor.length + 1);
+  const untouched = state.phrase && v.trim() === state.core; // 문구를 손대지 않았을 때만 말투를 바꿔 줌
   state.honor = state.honor === h ? null : h;
-  state.autoHonor = false;
+  if (untouched) { state.core = coreFor(state.phrase); v = state.core; }
   ta.value = state.honor ? state.honor + " " + v : v;
   renderHonors();
   updateButtons();
