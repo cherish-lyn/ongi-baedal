@@ -551,7 +551,8 @@ let myReplies = [];
 try { myReplies = JSON.parse(localStorage.getItem("ongi_replies") || "[]"); } catch (e) {}
 let myPending = []; // 방금 붙여서 아직 서버 목록에 안 올라온 답장 {t, ts}
 try { myPending = JSON.parse(localStorage.getItem("ongi_pending") || "[]"); } catch (e) {}
-const PENDING_MS = 45000; // 이 시간이 지나도 서버 목록에 없으면(숨김·거절) 내 화면에서도 내림
+const PENDING_MS = 5000; // 붙이고 이 시간 뒤에 받아 온 목록에 없으면(숨김·거절) 내 화면에서도 내림
+let lastLoadStart = 0; // 가장 최근에 성공한 목록 요청을 보낸 시각
 let serverReplies = [];
 let repliesLoaded = false;
 // 지난번에 본 결과를 먼저 바로 보여 주고, 새 결과가 오면 바꿔 끼움
@@ -564,7 +565,7 @@ function renderNotes() {
   const box = $("notes");
   box.innerHTML = "";
   // 내가 방금 붙인 답장은 서버에 올라오기 전에도 바로 보이게
-  myPending = myPending.filter((p) => Date.now() - p.ts < PENDING_MS && !serverReplies.includes(p.t));
+  myPending = myPending.filter((p) => p.ts + PENDING_MS > lastLoadStart && Date.now() - p.ts < 60000 && !serverReplies.includes(p.t));
   try { localStorage.setItem("ongi_pending", JSON.stringify(myPending)); } catch (e) {}
   const pending = myPending.map((p) => p.t);
   box.classList.toggle("loading", !repliesLoaded && !pending.length && !!CONFIG.ENDPOINT);
@@ -595,18 +596,19 @@ function postReply() {
   $("btnReply").disabled = true;
   renderNotes();
   toast("답장을 붙였어요 📌");
-  setTimeout(loadCounts, 3000);
-  setTimeout(loadCounts, 20000);
-  setTimeout(renderNotes, PENDING_MS + 500);
+  setTimeout(loadCounts, 2500);
+  setTimeout(loadCounts, PENDING_MS + 1000);
 }
 
 async function loadCounts() {
   if (!CONFIG.ENDPOINT) return;
+  const started = Date.now();
   try {
     const r = await fetch(CONFIG.ENDPOINT + (CONFIG.ENDPOINT.includes("?") ? "&" : "?") + "t=" + Date.now());
     const j = await r.json();
     state.counts = j.counts || {};
     repliesLoaded = true;
+    lastLoadStart = started;
     if (Array.isArray(j.replies)) serverReplies = j.replies.map(String);
     renderNotes();
     try { localStorage.setItem("ongi_cache", JSON.stringify({ counts: state.counts, replies: serverReplies })); } catch (e) {}
@@ -744,6 +746,8 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) load
 renderThemes(); renderPhrases(); renderHonors(); updateButtons();
 loadCounts();
 loadKakao();
+// 화면을 보고 있는 동안 20초마다 답장과 숫자를 새로 받아 옴 (숨긴 답장이 새로고침 없이 사라짐)
+setInterval(() => { if (!document.hidden) loadCounts(); }, 20000);
 </script>
 </body>
 </html>
