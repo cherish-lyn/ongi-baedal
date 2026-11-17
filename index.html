@@ -276,6 +276,8 @@ const CONFIG = {
   // 문구판과 똑같이 맞춰 주세요. 문구를 바꾸면 그 문구의 카운트는 0부터 새로 셉니다.
   // 이 호칭을 고르면 문구가 반말로 들어갑니다.
   CASUAL_HONORIFICS: ["우리 딸", "우리 아들", "동생"],
+  // 이 호칭은 "당신"을 그대로 둡니다. 다른 호칭을 고르면 문구 속 "당신"이 그 호칭으로 바뀝니다. (예: 엄마가 있어서 든든했어요.)
+  KEEP_DANGSIN: ["여보", "자기야"],
   // 높임말 문구 → 반말 문구 (여기 없는 문구는 원래 반말이라 그대로 들어갑니다)
   CASUAL: {
     "올 한 해 곁에 있어줘서 고마워요.": "올 한 해 곁에 있어줘서 고마워.",
@@ -283,14 +285,14 @@ const CONFIG = {
     "매일 챙겨줘서 고마워요. 덕분에 잘 지냈어요.": "매일 챙겨줘서 고마워. 덕분에 잘 지냈어.",
     "올 한 해 같이여서 좋았어요. 고마워요.": "올 한 해 같이여서 좋았어. 고마워.",
     "항상 내 걱정부터 해줘서 고마워요.": "항상 내 걱정부터 해줘서 고마워.",
-    "곁에 있어서 든든했어요.": "곁에 있어서 든든했어.",
+    "당신이 있어서 든든했어요.": "당신이 있어서 든든했어.",
     "바쁘다고 못 챙겨서 미안해요.": "바쁘다고 못 챙겨서 미안해.",
     "그때 못 참고 화내서 미안해요.": "그때 못 참고 화내서 미안해.",
     "요즘 말이 짧았죠. 미안해요.": "요즘 말이 짧았지. 미안해.",
     "고생하는 거 알면서 표현 못 해서 미안해요.": "고생하는 거 알면서 표현 못 해서 미안해.",
     "새삼스럽지만 사랑해요.": "새삼스럽지만 사랑해.",
     "보고 싶어요. 다음 주에 얼굴 봐요.": "보고 싶어. 다음 주에 얼굴 보자.",
-    "내 가족이라 다행이에요.": "내 가족이라 다행이야.",
+    "당신이 내 가족이라 다행이에요.": "당신이 내 가족이라 다행이야.",
     "오늘따라 보고 싶네요.": "오늘따라 보고 싶네.",
     "올해 정말 고생 많았어요. 수고했어요.": "올해 정말 고생 많았어. 수고했어.",
     "연말연시 우리 가족 행복해요.": "연말연시 우리 가족 행복하자.",
@@ -299,7 +301,7 @@ const CONFIG = {
     "힘들면 언제든 말해요. 같이 할게요.": "힘들면 언제든 말해. 같이 할게.",
     "다음 주 수요일엔 일찍 갈게요. 같이 저녁 먹어요.": "다음 주 수요일엔 일찍 갈게. 같이 저녁 먹자.",
     "앞으로는 먼저 안부 물을게요.": "앞으로는 먼저 안부 물을게.",
-    "내년에도 늘 편이 되어줄게요.": "내년에도 늘 편이 되어줄게.",
+    "내년에도 당신 편에 있을게요.": "내년에도 당신 편에 있을게.",
     "더 많이 웃으면서 지낼게요. 약속해요.": "더 많이 웃으면서 지낼게. 약속해.",
     "앞으로 자주 말할게요. 고맙다고 사랑한다고.": "앞으로 자주 말할게. 고맙다고 사랑한다고.",
   },
@@ -313,7 +315,7 @@ const CONFIG = {
       "올 한 해 같이여서 좋았어요. 고마워요.",
       "키워줘서 고마워.",
       "항상 내 걱정부터 해줘서 고마워요.",
-      "곁에 있어서 든든했어요.",
+      "당신이 있어서 든든했어요.",
     ]},
     { name: "미안함", phrases: [
       "바쁘다고 못 챙겨서 미안해요.",
@@ -326,7 +328,7 @@ const CONFIG = {
     { name: "사랑", phrases: [
       "새삼스럽지만 사랑해요.",
       "보고 싶어요. 다음 주에 얼굴 봐요.",
-      "내 가족이라 다행이에요.",
+      "당신이 내 가족이라 다행이에요.",
       "있는 그대로 사랑해.",
       "사랑해. 그냥 말하고 싶었어.",
       "오늘따라 보고 싶네요.",
@@ -342,7 +344,7 @@ const CONFIG = {
     { name: "약속", phrases: [
       "다음 주 수요일엔 일찍 갈게요. 같이 저녁 먹어요.",
       "앞으로는 먼저 안부 물을게요.",
-      "내년에도 늘 편이 되어줄게요.",
+      "내년에도 당신 편에 있을게요.",
       "더 많이 웃으면서 지낼게요. 약속해요.",
       "앞으로 자주 말할게요. 고맙다고 사랑한다고.",
     ]},
@@ -439,40 +441,54 @@ function selectTheme(t) {
   state.theme = t;
   state.phrase = null;
   state.core = null;
+  state.embedded = false;
   if (t === CUSTOM) { setBody(""); $("msg").focus(); }
   renderThemes();
   renderPhrases();
 }
 
-// 고른 문구를 지금 호칭에 맞는 말투로 (우리 딸·우리 아들이면 반말)
+// 고른 문구를 지금 호칭에 맞게: 우리 딸·우리 아들·동생이면 반말, 문구 속 "당신"은 호칭으로 바꿈
 function coreFor(phrase) {
   const { core } = splitLead(phrase);
   const base = core.replace(/, /g, " ");
-  return (CONFIG.CASUAL_HONORIFICS.includes(state.honor) && CONFIG.CASUAL[base]) || base;
+  const h = state.honor;
+  let text = (CONFIG.CASUAL_HONORIFICS.includes(h) && CONFIG.CASUAL[base]) || base;
+  let embedded = false;
+  if (h && !CONFIG.KEEP_DANGSIN.includes(h) && text.includes("당신")) {
+    const hasBatchim = (h.charCodeAt(h.length - 1) - 0xac00) % 28 !== 0;
+    text = text.replace("당신이", h + (hasBatchim ? "이" : "가")).replace("당신", h);
+    embedded = true; // 호칭이 문구 안에 들어갔으니 앞에 또 붙이지 않음
+  }
+  return { text, embedded };
 }
 
 function selectPhrase(text) {
   state.phrase = text;
-  state.core = coreFor(text);
+  const c = coreFor(text);
+  state.core = c.text; state.embedded = c.embedded;
   setBody(state.core);
   renderPhrases();
+}
+
+function stripHonor(v) {
+  return !state.embedded && state.honor && v.startsWith(state.honor + " ") ? v.slice(state.honor.length + 1) : v;
 }
 
 // 호칭 붙이기/바꾸기/빼기
 function toggleHonor(h) {
   const ta = $("msg");
-  let v = ta.value;
-  if (state.honor && v.startsWith(state.honor + " ")) v = v.slice(state.honor.length + 1);
-  const untouched = state.phrase && v.trim() === state.core; // 문구를 손대지 않았을 때만 말투를 바꿔 줌
+  let v = stripHonor(ta.value);
+  const untouched = state.phrase && v.trim() === state.core; // 문구를 손대지 않았을 때만 말투·호칭을 다시 맞춤
   state.honor = state.honor === h ? null : h;
-  if (untouched) { state.core = coreFor(state.phrase); v = state.core; }
-  ta.value = state.honor ? state.honor + " " + v : v;
+  if (untouched) { const c = coreFor(state.phrase); state.core = c.text; state.embedded = c.embedded; v = state.core; }
+  else state.embedded = false;
+  ta.value = state.honor && !state.embedded ? state.honor + " " + v : v;
   renderHonors();
   updateButtons();
 }
 
 function setBody(text) {
-  $("msg").value = state.honor ? state.honor + " " + text : text;
+  $("msg").value = state.honor && !state.embedded ? state.honor + " " + text : text;
   updateButtons();
 }
 
@@ -500,9 +516,7 @@ function updateButtons() {
 
 function isEdited() {
   if (!state.phrase) return true;
-  let v = $("msg").value.trim();
-  if (state.honor && v.startsWith(state.honor + " ")) v = v.slice(state.honor.length + 1);
-  return v !== state.core;
+  return stripHonor($("msg").value.trim()) !== state.core;
 }
 
 /* ---------- 집계 ---------- */
@@ -675,7 +689,7 @@ function toast(msg, ms = 2600) {
 }
 
 function again() {
-  state.phrase = null; state.core = null; state.honor = null;
+  state.phrase = null; state.core = null; state.embedded = false; state.honor = null;
   $("msg").value = ""; $("invite").checked = false;
   $("done").classList.remove("show");
   renderHonors(); renderPhrases(); updateButtons();
