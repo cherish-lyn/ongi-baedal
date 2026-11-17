@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>온기배달 · 올해가 가기 전에 한마디</title>
+<meta name="description" content="올해가 가기 전에, 평소 못 했던 한마디를 가족에게 전해보세요.">
+<meta property="og:title" content="온기배달 · 올해가 가기 전에 한마디">
+<meta property="og:description" content="평소 못 했던 한마디, 지금 가족에게 전해보세요.">
+<meta name="theme-color" content="#FFF6EC">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💌%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --bg:#FFF6EC; --card:#FFFFFF; --ink:#2B211C; --sub:#7A6A60; --line:#EFDFCF;
+    --accent:#D9492B; --accent-ink:#FFFFFF; --accent-soft:#FCE5DB;
+    --kakao:#FEE500; --kakao-ink:#191919;
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.55;
+    -webkit-font-smoothing:antialiased; word-break:keep-all; -webkit-tap-highlight-color:transparent;
+  }
+  .wrap{max-width:480px; margin:0 auto; padding:28px 20px calc(48px + env(safe-area-inset-bottom))}
+
+  /* 헤더 */
+  header{text-align:left; margin-bottom:28px}
+  .eyebrow{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--accent); letter-spacing:.02em}
+  h1{font-size:30px; line-height:1.28; margin:10px 0 10px; font-weight:800; letter-spacing:-.02em}
+  h1 em{font-style:normal; color:var(--accent)}
+  .lead{margin:0; color:var(--sub); font-size:15.5px}
+  .live{display:none; margin-top:16px; align-items:center; gap:8px; background:var(--card); border:1px solid var(--line);
+        border-radius:999px; padding:8px 14px; font-size:14px; color:var(--ink); width:max-content; max-width:100%}
+  .live.show{display:inline-flex}
+  .live b{color:var(--accent)}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 0 rgba(217,73,43,.5); animation:pulse 2s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 8px rgba(217,73,43,0)}100%{box-shadow:0 0 0 0 rgba(217,73,43,0)}}
+
+  /* 단계 */
+  section.step{margin-top:30px}
+  .step-head{display:flex; align-items:center; gap:10px; margin-bottom:12px}
+  .num{flex:none; width:26px; height:26px; border-radius:50%; background:var(--ink); color:#fff; font-size:13px; font-weight:800;
+       display:grid; place-items:center}
+  .step-head h2{font-size:18px; margin:0; font-weight:800; letter-spacing:-.01em}
+
+  /* 주제 칩 */
+  .themes{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{appearance:none; border:1.5px solid var(--line); background:var(--card); color:var(--ink); font:inherit; font-size:15px; font-weight:700;
+        padding:9px 15px; border-radius:999px; cursor:pointer; transition:transform .08s, background .15s, border-color .15s}
+  .chip:active{transform:scale(.97)}
+  .chip[aria-pressed="true"]{background:var(--tint); border-color:var(--tone); color:var(--ink)}
+
+  /* 문구 카드 */
+  .phrases{display:grid; gap:10px; margin-top:14px}
+  .phrase{position:relative; appearance:none; text-align:left; width:100%; font:inherit; color:var(--ink); cursor:pointer;
+          background:var(--card); border:1.5px solid var(--line); border-radius:var(--radius); padding:15px 16px 13px 46px;
+          font-size:16px; line-height:1.5; transition:border-color .15s, box-shadow .15s}
+  .phrase::before{content:""; position:absolute; left:16px; top:17px; width:18px; height:18px; border-radius:50%; border:2px solid #D8C8B8; background:#fff}
+  .phrase[aria-checked="true"]{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+  .phrase[aria-checked="true"]::before{border-color:var(--accent); background:var(--accent); box-shadow:inset 0 0 0 3px #fff}
+  .phrase .cnt{display:block; margin-top:6px; font-size:12.5px; color:var(--sub); font-weight:600}
+  .phrase .cnt:empty{display:none}
+  .custom-note{margin:14px 0 0; padding:14px 16px; background:var(--card); border:1.5px dashed #D8C8B8; border-radius:var(--radius); color:var(--sub); font-size:15px}
+
+  /* 편집 */
+  .honor-label{font-size:13.5px; color:var(--sub); margin:0 0 8px}
+  .honors{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin:0 -20px 12px; padding-left:20px; padding-right:20px; scrollbar-width:none}
+  .honors::-webkit-scrollbar{display:none}
+  .honor{flex:none; appearance:none; font:inherit; font-size:14px; font-weight:600; border:1px solid var(--line); background:var(--card); color:var(--ink);
+         padding:6px 12px; border-radius:999px; cursor:pointer}
+  .honor[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:#fff}
+  textarea{width:100%; min-height:140px; resize:vertical; font:inherit; font-size:17px; line-height:1.6; color:var(--ink);
+           background:var(--card); border:1.5px solid var(--line); border-radius:var(--radius); padding:16px; outline:none}
+  textarea:focus{border-color:var(--ink)}
+  .toggle{display:flex; align-items:flex-start; gap:10px; margin-top:12px; font-size:14.5px; color:var(--ink); cursor:pointer}
+  .toggle input{width:20px; height:20px; margin:1px 0 0; accent-color:var(--accent); flex:none}
+  .toggle small{display:block; color:var(--sub); font-size:13px}
+
+  /* 보내기 */
+  .send{display:grid; gap:10px}
+  .btn{appearance:none; border:0; width:100%; font:inherit; font-size:17px; font-weight:800; padding:17px 18px; border-radius:16px; cursor:pointer;
+       display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .08s, opacity .15s}
+  .btn:active{transform:scale(.985)}
+  .btn:disabled{opacity:.4; cursor:not-allowed; transform:none}
+  .btn-sms{background:var(--accent); color:var(--accent-ink)}
+  .btn-kakao{background:var(--kakao); color:var(--kakao-ink)}
+  .btn-copy{background:transparent; color:var(--sub); font-size:15px; font-weight:700; padding:10px; text-decoration:underline; text-underline-offset:3px}
+  .privacy{margin:14px 0 0; font-size:12.5px; color:var(--sub); text-align:center}
+
+  /* 완료 */
+  .done{display:none; margin-top:30px; background:var(--card); border:1.5px solid var(--accent); border-radius:22px; padding:22px 20px}
+  .done.show{display:block; animation:rise .35s ease-out}
+  @keyframes rise{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
+  .done h3{margin:0 0 6px; font-size:21px; font-weight:800}
+  .done p{margin:0 0 14px; color:var(--sub); font-size:15px}
+  .done ol{margin:0 0 16px; padding-left:20px; font-size:15px}
+  .done li{margin-bottom:6px}
+  .sticker{display:inline-block; width:12px; height:12px; border-radius:50%; vertical-align:-1px; margin:0 2px 0 4px}
+  .familyday{background:var(--accent-soft); border-radius:14px; padding:14px 16px; font-size:15px}
+  .familyday b{color:var(--accent)}
+  .again{margin-top:14px; background:var(--ink); color:#fff; font-size:16px; padding:14px}
+
+  footer{margin-top:40px; text-align:center; font-size:12.5px; color:var(--sub)}
+
+  /* 토스트 */
+  .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translate(-50%,20px); opacity:0; pointer-events:none;
+         background:var(--ink); color:#fff; font-size:14.5px; padding:12px 18px; border-radius:12px; max-width:calc(100% - 40px); width:max-content;
+         transition:opacity .2s, transform .2s; z-index:10; text-align:center}
+  .toast.show{opacity:1; transform:translate(-50%,0)}
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      온기배달 · 가족사랑의 날 캠페인
+    </span>
+    <h1>올해가 가기 전에,<br><em>가족에게 한마디</em></h1>
+    <p class="lead">평소 쑥스러워서 못 했던 말, 지금 문자 한 통으로 전해보세요.</p>
+    <div class="live" id="live"><span class="dot"></span><span>지금까지 <b id="total">0</b>개의 한마디가 전해졌어요</span></div>
+  </header>
+
+  <section class="step" aria-labelledby="s1">
+    <div class="step-head"><span class="num">1</span><h2 id="s1">어떤 마음을 전할까요?</h2></div>
+    <div class="themes" id="themes" role="group" aria-label="주제 선택"></div>
+    <div class="phrases" id="phrases" role="radiogroup" aria-label="문구 선택"></div>
+  </section>
+
+  <section class="step" aria-labelledby="s2">
+    <div class="step-head"><span class="num">2</span><h2 id="s2">내 말투로 다듬어요</h2></div>
+    <p class="honor-label">누구에게 보내나요? 누르면 부르는 말이 앞에 붙어요</p>
+    <div class="honors" id="honors"></div>
+    <textarea id="msg" placeholder="위에서 문구를 고르거나, 하고 싶은 말을 직접 적어주세요." aria-label="보낼 메시지"></textarea>
+    <label class="toggle">
+      <input type="checkbox" id="invite">
+      <span>수요일 저녁 초대 한 줄 덧붙이기
+        <small id="inviteText"></small>
+      </span>
+    </label>
+  </section>
+
+  <section class="step" aria-labelledby="s3">
+    <div class="step-head"><span class="num">3</span><h2 id="s3">가족에게 보내요</h2></div>
+    <div class="send">
+      <button class="btn btn-sms" id="btnSms" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16a1 1 0 011 1v10a1 1 0 01-1 1H9l-4.5 3.5V17H4a1 1 0 01-1-1V6a1 1 0 011-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        문자로 보내기
+      </button>
+      <button class="btn btn-kakao" id="btnKakao" disabled>카카오톡으로 보내기</button>
+      <button class="btn btn-copy" id="btnCopy" disabled>문구만 복사하기</button>
+    </div>
+    <p class="privacy">보내는 내용과 받는 사람은 저장되지 않아요.<br>어떤 문구가 골라졌는지만 익명으로 집계해요.</p>
+  </section>
+
+  <section class="done" id="done" aria-live="polite">
+    <h3>💌 온기가 배달됐어요</h3>
+    <p>마음이 잘 전해졌나요? 부스에서 마무리해 주세요.</p>
+    <ol>
+      <li>문구판의 고른 문구 옆에 스티커 붙이기<br>
+        <span class="sticker" style="background:#F5C518"></span>평소에도 하는 말
+        <span class="sticker" style="background:#E0352B"></span>평소에 잘 못 하던 말</li>
+      <li>답장이 오면 포스트잇에 적어 답장 게시판에 (원하는 분만)</li>
+      <li>따뜻한 핫팩 받아가기</li>
+    </ol>
+    <div class="familyday">매주 수요일은 <b>가족사랑의 날</b>이에요.<br><span id="fdText"></span></div>
+    <button class="btn again" id="btnAgain">다른 가족에게도 보내기</button>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =====================================================================
+   ✏️ 여기만 고치면 됩니다
+   ===================================================================== */
+const CONFIG = {
+  // 구글 Apps Script를 배포하고 받은 '웹 앱 URL'을 따옴표 안에 붙여넣으세요.
+  // 비워 두면 집계 없이 문구 선택·전송만 동작합니다.
+  ENDPOINT: "",
+
+  HOST: "달서구가족센터 · 감삼 공동육아나눔터",
+  SNS: "",                                   // 예: "인스타그램 @센터계정"  (비워 두면 표시 안 함)
+  FAMILY_DAY_LINE: "다음 주 수요일(11/25) 저녁, 가족과 함께해요.",
+  INVITE_LINE: "P.S. 매주 수요일은 가족사랑의 날이래요. 다음 주 수요일(25일) 저녁, 같이 밥 먹어요!",
+
+  HONORIFICS: ["엄마", "아빠", "여보", "자기야", "할머니", "할아버지", "언니", "누나", "오빠", "형", "동생", "아들", "딸"],
+
+  // 문구판과 똑같이 맞춰 주세요. 문구를 바꾸면 그 문구의 카운트는 0부터 새로 셉니다.
+  THEMES: [
+    { name: "고마움", tone: "#E9A23B", tint: "#FDF0D9", phrases: [
+      "늘 곁에 있어 줘서 고마워요. 말은 안 했지만 많이 의지하고 있어요.",
+      "올 한 해도 우리 가족 챙기느라 고생 많았어요. 정말 고마워요.",
+      "당연하게 여겼던 것들, 사실 다 고마웠어요.",
+    ]},
+    { name: "미안함", tone: "#6E8FC7", tint: "#E3EBF8", phrases: [
+      "바쁘다는 핑계로 연락 자주 못 해서 미안해요.",
+      "그때 모질게 말해서 미안해. 마음은 그게 아니었어.",
+      "내가 먼저 다가가지 못해서 미안해요. 이제 자주 연락할게요.",
+    ]},
+    { name: "사랑", tone: "#E2546E", tint: "#FBE2E7", phrases: [
+      "사랑해요. 자주 말은 못 했지만 늘 그랬어요.",
+      "우리 가족이라서 참 다행이에요. 사랑해요.",
+      "오늘 문득 생각나서 연락해요. 사랑합니다.",
+    ]},
+    { name: "응원", tone: "#3FA16D", tint: "#DFF2E7", phrases: [
+      "요즘 많이 힘들지? 늘 응원하고 있어. 너무 애쓰지 마.",
+      "올해도 잘 버텨 줘서 고마워요. 내년에도 늘 응원할게요.",
+      "무슨 일이 있어도 내 편은 여기 있어요. 힘내요!",
+    ]},
+    { name: "약속", tone: "#8E6CCB", tint: "#ECE4F8", phrases: [
+      "앞으로 더 자주 전화할게요. 약속해요.",
+      "올해가 가기 전에 꼭 한번 같이 시간 보내요.",
+      "다음 주 수요일 저녁, 같이 밥 먹어요. 내가 맛있는 거 살게요!",
+    ]},
+  ],
+};
+/* ===================================================================== */
+
+const CUSTOM = { name: "직접 쓰기", tone: "#2B211C", tint: "#EFE7DE", phrases: [] };
+const $ = (id) => document.getElementById(id);
+const ua = navigator.userAgent;
+const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const isAndroid = /Android/i.test(ua);
+
+const state = { theme: CONFIG.THEMES[0], phrase: null, honor: null, counts: {} };
+
+// 익명 참여자 ID (같은 사람이 같은 문구를 두 번 눌러도 1명으로 집계하기 위함)
+const sid = (() => {
+  const make = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  try {
+    let v = localStorage.getItem("ongi_sid");
+    if (!v) { v = make(); localStorage.setItem("ongi_sid", v); }
+    return v;
+  } catch (e) { return make(); }
+})();
+
+/* ---------- 화면 그리기 ---------- */
+function renderThemes() {
+  const box = $("themes");
+  box.innerHTML = "";
+  [...CONFIG.THEMES, CUSTOM].forEach((t) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip";
+    b.textContent = t === CUSTOM ? "✏️ " + t.name : t.name;
+    b.style.setProperty("--tone", t.tone);
+    b.style.setProperty("--tint", t.tint);
+    b.setAttribute("aria-pressed", String(t === state.theme));
+    b.onclick = () => selectTheme(t);
+    box.appendChild(b);
+  });
+}
+
+function renderPhrases() {
+  const box = $("phrases");
+  box.innerHTML = "";
+  if (state.theme === CUSTOM) {
+    const p = document.createElement("p");
+    p.className = "custom-note";
+    p.textContent = "아래 칸에 하고 싶은 말을 자유롭게 적어 보세요. 짧아도 괜찮아요.";
+    box.appendChild(p);
+    return;
+  }
+  state.theme.phrases.forEach((text) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "phrase";
+    b.setAttribute("role", "radio");
+    b.setAttribute("aria-checked", String(text === state.phrase));
+    b.appendChild(document.createTextNode(text));
+    const c = document.createElement("span");
+    c.className = "cnt";
+    const n = state.counts[text] || 0;
+    c.textContent = n > 0 ? `💌 ${n}명이 이 말을 전했어요` : "";
+    b.appendChild(c);
+    b.onclick = () => selectPhrase(text);
+    box.appendChild(b);
+  });
+}
+
+function renderHonors() {
+  const box = $("honors");
+  box.innerHTML = "";
+  CONFIG.HONORIFICS.forEach((h) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "honor";
+    b.textContent = h;
+    b.setAttribute("aria-pressed", String(h === state.honor));
+    b.onclick = () => toggleHonor(h);
+    box.appendChild(b);
+  });
+}
+
+function renderFooter() {
+  const f = $("footer");
+  f.innerHTML = "";
+  const a = document.createElement("div");
+  a.textContent = CONFIG.HOST;
+  f.appendChild(a);
+  if (CONFIG.SNS) {
+    const s = document.createElement("div");
+    s.textContent = CONFIG.SNS;
+    s.style.marginTop = "4px";
+    f.appendChild(s);
+  }
+}
+
+/* ---------- 동작 ---------- */
+function selectTheme(t) {
+  state.theme = t;
+  state.phrase = null;
+  if (t === CUSTOM) { setBody(""); $("msg").focus(); }
+  renderThemes();
+  renderPhrases();
+}
+
+function selectPhrase(text) {
+  state.phrase = text;
+  setBody(text);
+  renderPhrases();
+}
+
+// 호칭 붙이기/바꾸기/빼기
+function toggleHonor(h) {
+  const ta = $("msg");
+  let v = ta.value;
+  if (state.honor && v.startsWith(state.honor + ", ")) v = v.slice(state.honor.length + 2);
+  state.honor = state.honor === h ? null : h;
+  ta.value = state.honor ? state.honor + ", " + v : v;
+  renderHonors();
+  updateButtons();
+}
+
+function setBody(text) {
+  $("msg").value = state.honor ? state.honor + ", " + text : text;
+  updateButtons();
+}
+
+function body() {
+  let v = $("msg").value.trim();
+  if (v && $("invite").checked) v += "\n\n" + CONFIG.INVITE_LINE;
+  return v;
+}
+
+function updateButtons() {
+  const empty = !$("msg").value.trim();
+  ["btnSms", "btnKakao", "btnCopy"].forEach((id) => ($(id).disabled = empty));
+}
+
+function isEdited() {
+  if (!state.phrase) return true;
+  let v = $("msg").value.trim();
+  if (state.honor && v.startsWith(state.honor + ", ")) v = v.slice(state.honor.length + 2);
+  return v !== state.phrase;
+}
+
+/* ---------- 집계 ---------- */
+function log(channel) {
+  if (!CONFIG.ENDPOINT) return;
+  const payload = JSON.stringify({
+    theme: state.theme.name,
+    phrase: state.theme === CUSTOM || !state.phrase ? "(직접 작성)" : state.phrase,
+    edited: state.theme === CUSTOM ? false : isEdited(),
+    channel,
+    invite: $("invite").checked,
+    sid,
+  });
+  try { if (navigator.sendBeacon && navigator.sendBeacon(CONFIG.ENDPOINT, payload)) return; } catch (e) {}
+  try { fetch(CONFIG.ENDPOINT, { method: "POST", mode: "no-cors", keepalive: true, headers: { "Content-Type": "text/plain" }, body: payload }); } catch (e) {}
+}
+
+async function loadCounts() {
+  if (!CONFIG.ENDPOINT) return;
+  try {
+    const r = await fetch(CONFIG.ENDPOINT + (CONFIG.ENDPOINT.includes("?") ? "&" : "?") + "t=" + Date.now());
+    const j = await r.json();
+    state.counts = j.counts || {};
+    if (j.total > 0) { $("total").textContent = j.total; $("live").classList.add("show"); }
+    renderPhrases();
+  } catch (e) { /* 집계를 못 불러와도 전송은 그대로 동작 */ }
+}
+
+/* ---------- 보내기 ---------- */
+function sendSms() {
+  const text = body();
+  if (!text) return;
+  log("sms");
+  const enc = encodeURIComponent(text);
+  showDone();
+  location.href = isIOS ? `sms:&body=${enc}` : `sms:?body=${enc}`;
+}
+
+async function sendKakao() {
+  const text = body();
+  if (!text) return;
+  if (navigator.share) {
+    try {
+      await navigator.share({ text });
+      log("kakao");
+      showDone();
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // 공유창을 닫은 경우
+    }
+  }
+  // 공유창을 못 여는 브라우저(카카오톡 안의 브라우저, PC 등): 복사 후 안내
+  log("kakao");
+  const ok = await copy(text);
+  showDone();
+  toast(ok ? "문구를 복사했어요! 카카오톡 채팅방에 붙여넣기 해 주세요." : "복사가 안 돼요. 위 문구를 길게 눌러 복사해 주세요.", 4000);
+}
+
+async function copyOnly() {
+  const text = body();
+  if (!text) return;
+  log("copy");
+  const ok = await copy(text);
+  toast(ok ? "복사했어요! 원하는 곳에 붙여넣기 해 주세요." : "복사가 안 돼요. 위 문구를 길게 눌러 복사해 주세요.");
+}
+
+async function copy(text) {
+  try {
+    // 일부 브라우저는 응답 없이 멈추므로 1.5초 안에 안 되면 다른 방법으로
+    await Promise.race([navigator.clipboard.writeText(text), new Promise((_, no) => setTimeout(no, 1500))]);
+    return true;
+  } catch (e) {}
+  try {
+    const t = document.createElement("textarea");
+    t.value = text; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy"); t.remove(); return ok;
+  } catch (e) { return false; }
+}
+
+function showDone() {
+  const d = $("done");
+  d.classList.add("show");
+  setTimeout(() => d.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+  setTimeout(loadCounts, 2500);
+}
+
+let toastTimer;
+function toast(msg, ms = 2600) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), ms);
+}
+
+function again() {
+  state.phrase = null; state.honor = null;
+  $("msg").value = ""; $("invite").checked = false;
+  $("done").classList.remove("show");
+  renderHonors(); renderPhrases(); updateButtons();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ---------- 시작 ---------- */
+$("inviteText").textContent = "“" + CONFIG.INVITE_LINE + "”";
+$("fdText").textContent = CONFIG.FAMILY_DAY_LINE;
+$("msg").addEventListener("input", updateButtons);
+$("btnSms").onclick = sendSms;
+$("btnKakao").onclick = sendKakao;
+$("btnCopy").onclick = copyOnly;
+$("btnAgain").onclick = again;
+// 문자 앱에 갔다가 돌아오면 숫자 새로고침
+document.addEventListener("visibilitychange", () => { if (!document.hidden) loadCounts(); });
+
+renderThemes(); renderPhrases(); renderHonors(); renderFooter(); updateButtons();
+loadCounts();
+</script>
+</body>
+</html>
